@@ -6,9 +6,13 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>Mirko.VisitService.ClientHttp</PackageId>
-		<Version>1.0.8</Version>
+		<Version>1.0.0</Version>
 		<Authors>Mirko Ferrari</Authors>
 		<RepositoryUrl>https://github.com/Mirko627/VisitService</RepositoryUrl>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\VisitService.Shared\VisitService.Shared.csproj" />
+	</ItemGroup>
 
 </Project>
