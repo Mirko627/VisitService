@@ -36,7 +36,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: .
-        file: VisitService.Api/Dockerfile
+        file: VisitService.API/Dockerfile
         build-args: |
           MIRKO_NUGET_USERNAME=${{ secrets.MIRKO_NUGET_USERNAME }}
           MIRKO_NUGET_PWD=${{ secrets.MIRKO_NUGET_PWD }}
