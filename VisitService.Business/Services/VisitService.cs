@@ -120,7 +120,7 @@ namespace VisitService.Business.Services
 
         public async Task<VisitDto> GetByIdAsync(int visitId, int userId)
         {
-            Visit visit = await GetVisit(visitId);
+            Visit visit = await GetVisit(visitId) ?? throw new KeyNotFoundException("Visita non esistente");
             await CheckCompletedAsync(visit);
 
             if (visit.OwnerId != userId && visit.VisitatorId != userId)
