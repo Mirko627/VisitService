@@ -31,7 +31,7 @@ namespace VisitService.Business.Services
 
             if (property.OwnerId == userId)
                 throw new UnauthorizedAccessException("Non è possibile prenotare una visita per un proprio immobile");
-
+            if(visitDto.VisitDate < DateTime.UtcNow) throw new InvalidOperationException("Non è possibile prenotare una visita per questa data");
             Visit visit = mapper.Map<Visit>(visitDto);
             visit.VisitatorId = userId;
             visit.CreatedAt = DateTime.UtcNow;
@@ -103,6 +103,8 @@ namespace VisitService.Business.Services
 
             if (visit.Status != VisitStatus.Pending)
                 throw new InvalidOperationException("La visita non è modificabile");
+
+            if (visitDto.VisitDate < DateTime.UtcNow) throw new InvalidOperationException("Non è possibile prenotare una visita per questa data");
 
             visit.VisitDate = visitDto.VisitDate;
             await repository.UpdateAsync(visit);

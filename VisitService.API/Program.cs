@@ -23,7 +23,7 @@ if (string.IsNullOrEmpty(propertyServiceUrl))
 {
     throw new Exception("L'URL di PropertyService non è configurato nel file appsettings.json");
 }
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IPropertyClient, PropertyClient>(client =>
 {
     client.BaseAddress = new Uri(propertyServiceUrl);
