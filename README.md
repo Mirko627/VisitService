@@ -13,6 +13,7 @@ Il servizio fa parte di un'architettura a microservizi:
 * Espone API REST
 * Tutte le operazioni sono protette tramite autenticazione JWT
 * Comunica con il **Property Service** per verificare l'esistenza, la disponibilità e il proprietario degli immobili
+* Pubblica eventi su Kafka relativi al ciclo di vita delle visite
 
 ## Avvio del servizio
 
@@ -31,7 +32,7 @@ docker-compose up
 
 Il servizio sarà disponibile su:
 
-```
+```text
 http://localhost:7804
 ```
 
@@ -39,7 +40,7 @@ http://localhost:7804
 
 Documentazione Swagger disponibile qui:
 
-```
+```text
 http://localhost:7804/swagger/index.html
 ```
 
@@ -116,6 +117,7 @@ Una visita può assumere i seguenti stati:
 
 Le visite vengono automaticamente marcate come **Completed** quando la data della visita è trascorsa.
 
+
 ## Endpoints principali
 
 | Metodo | Endpoint                 | Autenticazione | Descrizione                                |
@@ -139,7 +141,18 @@ Il Visit Service utilizza il Property Service per:
 * recuperare il proprietario dell'immobile
 * impedire la prenotazione di visite su immobili già venduti
 
+### Kafka
+
+#### Eventi Kafka pubblicati
+
+| Topic        | Evento         | Descrizione                                                  |
+| ------------ | -------------- | ------------------------------------------------------------ |
+| visit-events | VisitCreated   | Notifica la creazione di una nuova richiesta di visita       |
+| visit-events | VisitConfirmed | Notifica la conferma di una visita da parte del proprietario |
+| visit-events | VisitCancelled | Notifica il rifiuto di una visita da parte del proprietario  |
+| visit-events | VisitCompleted | Notifica il completamento automatico di una visita           |
+
+
 ### Controlli automatici
 
-* Le visite scadute vengono automaticamente marcate come **Completed**.
 * Tutti i controlli di autorizzazione si basano sull'utente autenticato contenuto nel JWT.
