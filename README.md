@@ -149,7 +149,7 @@ Il Visit Service utilizza il Property Service per:
 | ------------ | -------------- | ------------------------------------------------------------ |
 | visit-events | VisitCreated   | Notifica la creazione di una nuova richiesta di visita       |
 | visit-events | VisitConfirmed | Notifica la conferma di una visita da parte del proprietario |
-| visit-events | VisitCancelled | Notifica il rifiuto di una visita da parte del proprietario  |
+| visit-events | VisitRejected  | Notifica il rifiuto di una visita da parte del proprietario  |
 | visit-events | VisitCompleted | Notifica il completamento automatico di una visita           |
 
 
