@@ -4,7 +4,7 @@ namespace VisitService.Kafka.Topics;
 
 public class VisitServiceTopicsOutput : AbstractKafkaTopics
 {
-    public string VisitEvents { get; set; } = "offer-events";
+    public string VisitEvents { get; set; } = "visit-events";
 
     public override IEnumerable<string> GetTopics()
     {
