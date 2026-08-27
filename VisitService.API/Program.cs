@@ -10,6 +10,7 @@ using VisitService.Business.Mappers;
 using VisitService.Data.Context;
 using VisitService.Data.Repositories;
 using VisitService.Repository.Interfaces;
+using VisitService.API.middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,6 +100,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
