@@ -6,6 +6,8 @@ using VisitService.Repository.Entities;
 using VisitService.Repository.Interfaces;
 using VisitService.Shared.dtos;
 using VisitService.Shared.enums;
+using VisitService.Kafka.Contracts;
+using VisitService.Kafka.Producer;
 
 namespace VisitService.Business.Services
 {
@@ -13,13 +15,17 @@ namespace VisitService.Business.Services
     {
         private readonly IVisitRepository repository;
         private readonly IPropertyClient propertyClient;
+        private readonly IVisitEventPublisher eventPublisher;
         private readonly IMapper mapper;
+        private readonly IMapper mapperEvent;
 
-        public VisitService( IVisitRepository repository, IMapper mapper, IPropertyClient propertyClient)
+        public VisitService(IVisitRepository repository, IPropertyClient propertyClient, IVisitEventPublisher eventPublisher, IMapper mapper, IMapper mapperEvent)
         {
             this.repository = repository;
-            this.mapper = mapper;
             this.propertyClient = propertyClient;
+            this.eventPublisher = eventPublisher;
+            this.mapper = mapper;
+            this.mapperEvent = mapperEvent;
         }
 
         public async Task AddAsync(CreateVisitDto visitDto, int userId)
@@ -39,6 +45,9 @@ namespace VisitService.Business.Services
             visit.OwnerId = property.OwnerId;
 
             await repository.AddAsync(visit);
+
+            VisitCreatedDto visitCreatedDto = mapperEvent.Map<VisitCreatedDto>(visit);
+            await eventPublisher.VisitCreatedAsync(visitCreatedDto);
         }
 
         public async Task ConfirmVisitAsync(int visitId, int userId)
@@ -60,6 +69,9 @@ namespace VisitService.Business.Services
             visit.Status = VisitStatus.Confirmed;
 
             await repository.UpdateAsync(visit);
+
+            VisitConfirmedDto visitConfirmedDto = mapperEvent.Map<VisitConfirmedDto>(visit);
+            await eventPublisher.VisitConfirmedAsync(visitConfirmedDto);
         }
 
         public async Task RejectVisitAsync(int visitId, int userId)
@@ -77,6 +89,9 @@ namespace VisitService.Business.Services
 
             visit.Status = VisitStatus.Cancelled;
             await repository.UpdateAsync(visit);
+
+            VisitRejectedDto visitRejectedDto = mapperEvent.Map<VisitRejectedDto>(visit);
+            await eventPublisher.VisitRejectedAsync(visitRejectedDto);
         }
 
         public async Task DeleteAsync(int visitId, int userId)

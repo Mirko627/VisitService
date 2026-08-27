@@ -11,6 +11,9 @@ using VisitService.Data.Context;
 using VisitService.Data.Repositories;
 using VisitService.Repository.Interfaces;
 using VisitService.API.middlewares;
+using Utility.Kafka.Abstractions.Clients;
+using Utility.Kafka.Clients;
+using VisitService.Kafka.Producer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +56,14 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("b133a0c0e9bee3be20163d2ad31d6248db292aa6dcb1ee087a2aa50e0fc75ae2"))
     };
 });
+
+// Kafka
+builder.Services.Configure<KafkaProducerClientOptions>(
+    builder.Configuration.GetSection("Kafka"));
+
+builder.Services.AddSingleton<IProducerClient<string, string>, ProducerClient>();
+builder.Services.AddScoped<IVisitEventPublisher, VisitEventPublisher>();
+
 // Services e repository
 builder.Services.AddScoped<IVisitService, VisitService.Business.Services.VisitService>();
 builder.Services.AddScoped<IVisitRepository, VisitRepository>();

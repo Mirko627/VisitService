@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\VisitService.Kafka\VisitService.Kafka.csproj" />
     <ProjectReference Include="..\VisitService.Repository\VisitService.Repository.csproj" />
   </ItemGroup>
 
