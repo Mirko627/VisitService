@@ -36,7 +36,9 @@ builder.Services.AddHttpClient<IPropertyClient, PropertyClient>(client =>
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<VisitMapper>();
+    cfg.AddProfile<VisitEventMapper>();
 });
+
 builder.Services.AddAuthentication(options =>
 {
     // Impostiamo JWT come schema predefinito
