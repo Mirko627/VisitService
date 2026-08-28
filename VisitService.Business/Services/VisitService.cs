@@ -157,6 +157,9 @@ namespace VisitService.Business.Services
             {
                 visit.Status = VisitStatus.Completed;
                 await repository.UpdateAsync(visit);
+
+                VisitCompletedDto visitCompletedDto = mapperEvent.Map<VisitCompletedDto>(visit);
+                await eventPublisher.VisitCompletedAsync(visitCompletedDto);
             }
         }
     }
