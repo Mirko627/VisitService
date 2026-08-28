@@ -10,4 +10,8 @@
 	<ItemGroup>
 		<PackageReference Include="Mirko.Utility.Kafka" Version="1.0.0" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\VisitService.Shared\VisitService.Shared.csproj" />
+	</ItemGroup>
 </Project>

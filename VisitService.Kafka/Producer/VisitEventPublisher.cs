@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
-using VisitService.Kafka.Contracts;
-using VisitService.Kafka.Events;
 using VisitService.Kafka.Topics;
 using System.Text.Json;
 using Utility.Kafka.Abstractions.Clients;
 using Utility.Kafka.Messages;
+using VisitService.Shared.kafka.Events;
+using VisitService.Shared.kafka.Contracts;
 
 namespace VisitService.Kafka.Producer
 {

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using VisitService.Repository.Entities;
-using VisitService.Kafka.Contracts;
+using VisitService.Shared.kafka.Contracts;
 
 namespace VisitService.Business.Mappers
 {

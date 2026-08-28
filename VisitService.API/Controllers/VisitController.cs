@@ -24,7 +24,7 @@ namespace VisitService.Api.Controllers
             int userId = GetUserId();
 
             await visitService.AddAsync(dto, userId);
-            return StatusCode(StatusCodes.Status201Created);
+            return Created();
         }
 
         [HttpPatch("{id:int}/confirm")]
@@ -33,7 +33,7 @@ namespace VisitService.Api.Controllers
             int userId = GetUserId();
 
             await visitService.ConfirmVisitAsync(id, userId);
-            return NoContent();
+            return Ok((new { message = "Visita confermata con successo" }));
         }
 
         [HttpPatch("{id:int}/reject")]
@@ -42,7 +42,7 @@ namespace VisitService.Api.Controllers
             int userId = GetUserId();
 
             await visitService.RejectVisitAsync(id, userId);
-            return NoContent();
+            return Ok((new { message = "Visita rifiutata con successo" }));
         }
 
         [HttpDelete("{id:int}")]
@@ -51,7 +51,7 @@ namespace VisitService.Api.Controllers
             int userId = GetUserId();
 
             await visitService.DeleteAsync(id, userId);
-            return NoContent();
+            return Ok((new { message = "Visita eliminata con successo" }));
         }
 
         [HttpPut("{id:int}")]
@@ -60,7 +60,7 @@ namespace VisitService.Api.Controllers
             int userId = GetUserId();
 
             await visitService.UpdateAsync(id, dto, userId);
-            return NoContent();
+            return Ok((new { message = "Visita aggiornata con successo" }));
         }
 
         [HttpGet]

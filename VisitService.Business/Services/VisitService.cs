@@ -6,8 +6,8 @@ using VisitService.Repository.Entities;
 using VisitService.Repository.Interfaces;
 using VisitService.Shared.dtos;
 using VisitService.Shared.enums;
-using VisitService.Kafka.Contracts;
 using VisitService.Kafka.Producer;
+using VisitService.Shared.kafka.Contracts;
 
 namespace VisitService.Business.Services
 {
@@ -32,8 +32,8 @@ namespace VisitService.Business.Services
         {
             PropertyDto property = await propertyClient.GetByIdAsync(visitDto.PropertyId) ?? throw new KeyNotFoundException("Immobile non esistente");
 
-            if (property.Status == PropertyService.Shared.enums.PropertyStatus.Sold)
-                throw new InvalidOperationException("L'immobile è già stato venduto");
+            if (property.Status != PropertyService.Shared.enums.PropertyStatus.Available)
+                throw new InvalidOperationException("L'immobile non è disponibile");
 
             if (property.OwnerId == userId)
                 throw new UnauthorizedAccessException("Non è possibile prenotare una visita per un proprio immobile");

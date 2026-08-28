@@ -1,4 +1,4 @@
-﻿using VisitService.Kafka.Contracts;
+﻿using VisitService.Shared.kafka.Contracts;
 
 namespace VisitService.Kafka.Producer
 {
