@@ -12,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\VisitService.Data\VisitService.Data.csproj" />
 	  <ProjectReference Include="..\VisitService.Shared\VisitService.Shared.csproj" />
 	</ItemGroup>
 </Project>

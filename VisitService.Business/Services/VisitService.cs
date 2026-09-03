@@ -44,10 +44,11 @@ namespace VisitService.Business.Services
             visit.Status = VisitStatus.Pending;
             visit.OwnerId = property.OwnerId;
 
-            await repository.AddAsync(visit);
-
             VisitCreatedDto visitCreatedDto = mapperEvent.Map<VisitCreatedDto>(visit);
-            await eventPublisher.VisitCreatedAsync(visitCreatedDto);
+
+            OutboxEvent outboxEvent = eventPublisher.CreateVisitCreatedEvent(visitCreatedDto);
+
+            await repository.AddAsync(visit, outboxEvent);
         }
 
         public async Task ConfirmVisitAsync(int visitId, int userId)
@@ -68,10 +69,12 @@ namespace VisitService.Business.Services
 
             visit.Status = VisitStatus.Confirmed;
 
-            await repository.UpdateAsync(visit);
-
             VisitConfirmedDto visitConfirmedDto = mapperEvent.Map<VisitConfirmedDto>(visit);
-            await eventPublisher.VisitConfirmedAsync(visitConfirmedDto);
+            
+            OutboxEvent outboxEvent = eventPublisher.CreateVisitConfirmedEvent(visitConfirmedDto);
+
+            await repository.UpdateAsync(visit, outboxEvent);
+
         }
 
         public async Task RejectVisitAsync(int visitId, int userId)
@@ -88,10 +91,12 @@ namespace VisitService.Business.Services
                 throw new UnauthorizedAccessException("Solo il proprietario può rifiutare la visita");
 
             visit.Status = VisitStatus.Cancelled;
-            await repository.UpdateAsync(visit);
 
             VisitRejectedDto visitRejectedDto = mapperEvent.Map<VisitRejectedDto>(visit);
-            await eventPublisher.VisitRejectedAsync(visitRejectedDto);
+
+            OutboxEvent outboxEvent = eventPublisher.CreateVisitRejectedEvent(visitRejectedDto);
+
+            await repository.UpdateAsync(visit, outboxEvent);
         }
 
         public async Task DeleteAsync(int visitId, int userId)
@@ -156,10 +161,12 @@ namespace VisitService.Business.Services
             if (visit.Status != VisitStatus.Completed && visit.VisitDate < DateTime.UtcNow)
             {
                 visit.Status = VisitStatus.Completed;
-                await repository.UpdateAsync(visit);
 
                 VisitCompletedDto visitCompletedDto = mapperEvent.Map<VisitCompletedDto>(visit);
-                await eventPublisher.VisitCompletedAsync(visitCompletedDto);
+
+                OutboxEvent outboxEvent = eventPublisher.CreateVisitCompletedEvent(visitCompletedDto);
+
+                await repository.UpdateAsync(visit, outboxEvent);
             }
         }
     }

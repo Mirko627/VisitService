@@ -1,12 +1,13 @@
-﻿using VisitService.Shared.kafka.Contracts;
+﻿using VisitService.Repository.Entities;
+using VisitService.Shared.kafka.Contracts;
 
 namespace VisitService.Kafka.Producer
 {
     public interface IVisitEventPublisher
     {
-        Task VisitCreatedAsync(VisitCreatedDto visit);
-        Task VisitConfirmedAsync(VisitConfirmedDto visit);
-        Task VisitRejectedAsync(VisitRejectedDto visit);
-        Task VisitCompletedAsync(VisitCompletedDto visit);
+        OutboxEvent CreateVisitCreatedEvent(VisitCreatedDto visit);
+        OutboxEvent CreateVisitConfirmedEvent(VisitConfirmedDto visit);
+        OutboxEvent CreateVisitRejectedEvent(VisitRejectedDto visit);
+        OutboxEvent CreateVisitCompletedEvent(VisitCompletedDto visit);
     }
 }

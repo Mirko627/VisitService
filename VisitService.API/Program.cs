@@ -14,6 +14,7 @@ using VisitService.API.middlewares;
 using Utility.Kafka.Abstractions.Clients;
 using Utility.Kafka.Clients;
 using VisitService.Kafka.Producer;
+using VisitService.Kafka.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,8 @@ builder.Services.Configure<KafkaProducerClientOptions>(
 
 builder.Services.AddSingleton<IProducerClient<string, string>, ProducerClient>();
 builder.Services.AddScoped<IVisitEventPublisher, VisitEventPublisher>();
+
+builder.Services.AddHostedService<OutboxPublisherService>();
 
 // Services e repository
 builder.Services.AddScoped<IVisitService, VisitService.Business.Services.VisitService>();

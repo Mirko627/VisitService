@@ -7,48 +7,60 @@ namespace VisitService.Data.Repositories
 {
     public class VisitRepository : IVisitRepository
     {
-        private readonly VisitDbContext context;
+        private readonly VisitDbContext _context;
 
         public VisitRepository(VisitDbContext context)
         {
-            this.context = context;
+            this._context = context;
         }
 
-        public async Task AddAsync(Visit visit)
+        public async Task AddAsync(Visit visit, OutboxEvent? outboxEvent = null)
         {
-            await context.AddAsync(visit);
-            await context.SaveChangesAsync();
+            await _context.Visits.AddAsync(visit);
+
+            if(outboxEvent != null) 
+                await _context.OutboxEvents.AddAsync(outboxEvent);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, OutboxEvent? outboxEvent = null)
         {
-            Visit? v = await context.visits.FindAsync(id);
+            Visit? v = await _context.Visits.FindAsync(id);
             if (v == null)
-                throw new Exception("Property non esistente");
-            context.visits.Remove(v);
-            await context.SaveChangesAsync();
+                throw new Exception("Visit non esistente");
+            _context.Visits.Remove(v);
+
+            if (outboxEvent != null)
+                await _context.OutboxEvents.AddAsync(outboxEvent);
+
+            await _context.SaveChangesAsync();
         }
         public async Task<Visit?> GetByIdAsync(int id)
         {
-            Visit? v = await context.visits.FindAsync(id);
+            Visit? v = await _context.Visits.FindAsync(id);
             return v;
         }
 
 
-        public async Task UpdateAsync(Visit visit)
+        public async Task UpdateAsync(Visit visit, OutboxEvent? outboxEvent = null)
         {
-            context.visits.Update(visit);
-            await context.SaveChangesAsync();
+            _context.Visits.Update(visit);
+
+            if (outboxEvent != null)
+                await _context.OutboxEvents.AddAsync(outboxEvent);
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<Visit>> GetAllAsync()
         {
-            List<Visit> list = await context.visits.ToListAsync();
+            List<Visit> list = await _context.Visits.ToListAsync();
             return list;            
         }
         public async Task<List<Visit>> GetByUserIdAsync(int userId)
         {
-            return await context.visits.Where(v => v.VisitatorId == userId || v.OwnerId == userId).ToListAsync();
+            return await _context.Visits.Where(v => v.VisitatorId == userId || v.OwnerId == userId).ToListAsync();
         }
     }
 }

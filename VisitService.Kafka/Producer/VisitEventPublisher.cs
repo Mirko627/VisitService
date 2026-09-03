@@ -5,6 +5,7 @@ using Utility.Kafka.Abstractions.Clients;
 using Utility.Kafka.Messages;
 using VisitService.Shared.kafka.Events;
 using VisitService.Shared.kafka.Contracts;
+using VisitService.Repository.Entities;
 
 namespace VisitService.Kafka.Producer
 {
@@ -25,32 +26,38 @@ namespace VisitService.Kafka.Producer
             _topics = topics.Value;
         }
 
-        public Task VisitCreatedAsync(VisitCreatedDto visit)
-            => PublishAsync(VisitKafkaEvents.VisitCreated, Insert, visit);
+        public OutboxEvent CreateVisitCreatedEvent(VisitCreatedDto visit)
+            => CreateEvent(VisitKafkaEvents.VisitCreated, Insert, visit);
 
-        public Task VisitConfirmedAsync(VisitConfirmedDto visit)
-            => PublishAsync(VisitKafkaEvents.VisitConfirmed, Insert, visit);
+        public OutboxEvent CreateVisitConfirmedEvent(VisitConfirmedDto visit)
+            => CreateEvent(VisitKafkaEvents.VisitConfirmed, Insert, visit);
 
-        public Task VisitRejectedAsync(VisitRejectedDto visit)
-            => PublishAsync(VisitKafkaEvents.VisitRejected, Insert, visit);
+        public OutboxEvent CreateVisitRejectedEvent(VisitRejectedDto visit)
+            => CreateEvent(VisitKafkaEvents.VisitRejected, Insert, visit);
 
-        public Task VisitCompletedAsync(VisitCompletedDto visit)
-            => PublishAsync(VisitKafkaEvents.VisitCompleted, Insert, visit);
+        public OutboxEvent CreateVisitCompletedEvent(VisitCompletedDto visit)
+            => CreateEvent(VisitKafkaEvents.VisitCompleted, Insert, visit);
 
-        private async Task PublishAsync<T>(string kafkaKey, string crudOperation, T visitDto)
+        private OutboxEvent CreateEvent<T>(string eventType, string operation, T dto)
         {
             var operationMessage = new OperationMessage<T>
             {
-                Operation = crudOperation,
-                Dto = visitDto
+                Operation = operation,
+                Dto = dto
             };
 
             string json = JsonSerializer.Serialize(operationMessage);
 
-            await _producerClient.ProduceAsync(
-                _topics.VisitEvents,
-                kafkaKey,
-                json);
+            return new OutboxEvent
+            {
+                Id = Guid.NewGuid(),
+                EventType = eventType,
+                Topic = _topics.VisitEvents,
+                Key = eventType,
+                Payload = json,
+                CreatedAt = DateTime.UtcNow,
+                PublishedAt = null
+            };
         }
     }
 }
