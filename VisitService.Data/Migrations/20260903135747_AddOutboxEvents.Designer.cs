@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VisitService.Data.Context;
 
@@ -11,9 +12,11 @@ using VisitService.Data.Context;
 namespace VisitService.Data.Migrations
 {
     [DbContext(typeof(VisitDbContext))]
-    partial class VisitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260903135747_AddOutboxEvents")]
+    partial class AddOutboxEvents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
