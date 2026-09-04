@@ -19,65 +19,65 @@ namespace VisitService.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateVisitDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateVisitDto dto, CancellationToken ct)
         {
             int userId = GetUserId();
 
-            await visitService.AddAsync(dto, userId);
+            await visitService.AddAsync(dto, userId, ct);
             return Created();
         }
 
         [HttpPatch("{id:int}/confirm")]
-        public async Task<IActionResult> Confirm(int id)
+        public async Task<IActionResult> Confirm(int id, CancellationToken ct)
         {
             int userId = GetUserId();
 
-            await visitService.ConfirmVisitAsync(id, userId);
+            await visitService.ConfirmVisitAsync(id, userId, ct);
             return Ok((new { message = "Visita confermata con successo" }));
         }
 
         [HttpPatch("{id:int}/reject")]
-        public async Task<IActionResult> Reject(int id)
+        public async Task<IActionResult> Reject(int id, CancellationToken ct)
         {
             int userId = GetUserId();
 
-            await visitService.RejectVisitAsync(id, userId);
+            await visitService.RejectVisitAsync(id, userId, ct);
             return Ok((new { message = "Visita rifiutata con successo" }));
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
             int userId = GetUserId();
 
-            await visitService.DeleteAsync(id, userId);
+            await visitService.DeleteAsync(id, userId, ct);
             return Ok((new { message = "Visita eliminata con successo" }));
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateVisitDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateVisitDto dto, CancellationToken ct)
         {
             int userId = GetUserId();
 
-            await visitService.UpdateAsync(id, dto, userId);
+            await visitService.UpdateAsync(id, dto, userId, ct);
             return Ok((new { message = "Visita aggiornata con successo" }));
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<VisitDto>>> GetAll()
+        public async Task<ActionResult<List<VisitDto>>> GetAll(CancellationToken ct)
         {
             int userId = GetUserId();
 
-            var visits = await visitService.GetAllAsync(userId);
+            var visits = await visitService.GetAllAsync(userId, ct);
             return Ok(visits);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<VisitDto>> GetById(int id)
+        public async Task<ActionResult<VisitDto>> GetById(int id, CancellationToken ct)
         {
             int userId = GetUserId();
 
-            var visit = await visitService.GetByIdAsync(id, userId);
+            var visit = await visitService.GetByIdAsync(id, userId, ct);
             return Ok(visit);
         }
 

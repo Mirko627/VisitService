@@ -4,12 +4,12 @@ namespace VisitService.ClientHttp.Interfaces
 {
     public interface IVisitClient
     {
-        Task AddAsync(CreateVisitDto dto);
-        Task ConfirmAsync(int id);
-        Task RejectAsync(int id);
-        Task DeleteAsync(int id);
-        Task UpdateAsync(int id, UpdateVisitDto dto);
-        Task<List<VisitDto>> GetAllAsync();
-        Task<VisitDto?> GetByIdAsync(int id);
+        Task AddAsync(CreateVisitDto dto, CancellationToken ct = default);
+        Task ConfirmAsync(int id, CancellationToken ct = default);
+        Task RejectAsync(int id, CancellationToken ct = default);
+        Task DeleteAsync(int id, CancellationToken ct = default);
+        Task UpdateAsync(int id, UpdateVisitDto dto, CancellationToken ct = default);
+        Task<List<VisitDto>> GetAllAsync(CancellationToken ct = default);
+        Task<VisitDto?> GetByIdAsync(int id, CancellationToken ct = default);
     }
 }

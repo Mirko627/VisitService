@@ -28,9 +28,9 @@ namespace VisitService.Business.Services
             this.mapperEvent = mapperEvent;
         }
 
-        public async Task AddAsync(CreateVisitDto visitDto, int userId)
+        public async Task AddAsync(CreateVisitDto visitDto, int userId, CancellationToken ct = default)
         {
-            PropertyDto property = await propertyClient.GetByIdAsync(visitDto.PropertyId) ?? throw new KeyNotFoundException("Immobile non esistente");
+            PropertyDto property = await propertyClient.GetByIdAsync(visitDto.PropertyId, ct) ?? throw new KeyNotFoundException("Immobile non esistente");
 
             if (property.Status != PropertyService.Shared.enums.PropertyStatus.Available)
                 throw new InvalidOperationException("L'immobile non è disponibile");
@@ -48,18 +48,18 @@ namespace VisitService.Business.Services
 
             OutboxEvent outboxEvent = eventPublisher.CreateVisitCreatedEvent(visitCreatedDto);
 
-            await repository.AddAsync(visit, outboxEvent);
+            await repository.AddAsync(visit, outboxEvent, ct);
         }
 
-        public async Task ConfirmVisitAsync(int visitId, int userId)
+        public async Task ConfirmVisitAsync(int visitId, int userId, CancellationToken ct = default)
         {
-            Visit visit = await GetVisit(visitId);
-            await CheckCompletedAsync(visit);
+            Visit visit = await GetVisit(visitId, ct);
+            await CheckCompletedAsync(visit, ct);
 
             if (visit.Status != VisitStatus.Pending)
                 throw new InvalidOperationException("La visita non è confermabile");
 
-            PropertyDto property = await propertyClient.GetByIdAsync(visit.PropertyId) ?? throw new KeyNotFoundException("Immobile non esistente");
+            PropertyDto property = await propertyClient.GetByIdAsync(visit.PropertyId, ct) ?? throw new KeyNotFoundException("Immobile non esistente");
 
             if (property.OwnerId != userId)
                 throw new UnauthorizedAccessException("Solo il proprietario può confermare la visita");
@@ -73,19 +73,19 @@ namespace VisitService.Business.Services
             
             OutboxEvent outboxEvent = eventPublisher.CreateVisitConfirmedEvent(visitConfirmedDto);
 
-            await repository.UpdateAsync(visit, outboxEvent);
+            await repository.UpdateAsync(visit, outboxEvent, ct);
 
         }
 
-        public async Task RejectVisitAsync(int visitId, int userId)
+        public async Task RejectVisitAsync(int visitId, int userId, CancellationToken ct = default)
         {
-            Visit visit = await GetVisit(visitId);
-            await CheckCompletedAsync(visit);
+            Visit visit = await GetVisit(visitId, ct);
+            await CheckCompletedAsync(visit, ct);
 
             if (visit.Status != VisitStatus.Pending)
                 throw new InvalidOperationException("La visita non è rifiutabile");
 
-            PropertyDto property = await propertyClient.GetByIdAsync(visit.PropertyId) ?? throw new KeyNotFoundException("Immobile non esistente");
+            PropertyDto property = await propertyClient.GetByIdAsync(visit.PropertyId, ct) ?? throw new KeyNotFoundException("Immobile non esistente");
 
             if (property.OwnerId != userId)
                 throw new UnauthorizedAccessException("Solo il proprietario può rifiutare la visita");
@@ -96,13 +96,13 @@ namespace VisitService.Business.Services
 
             OutboxEvent outboxEvent = eventPublisher.CreateVisitRejectedEvent(visitRejectedDto);
 
-            await repository.UpdateAsync(visit, outboxEvent);
+            await repository.UpdateAsync(visit, outboxEvent, ct);
         }
 
-        public async Task DeleteAsync(int visitId, int userId)
+        public async Task DeleteAsync(int visitId, int userId, CancellationToken ct = default)
         {
-            Visit visit = await GetVisit(visitId);
-            await CheckCompletedAsync(visit);
+            Visit visit = await GetVisit(visitId, ct);
+            await CheckCompletedAsync(visit, ct);
 
             if (visit.VisitatorId != userId)
                 throw new UnauthorizedAccessException("Solo il visitatore può eliminare la visita");
@@ -110,13 +110,13 @@ namespace VisitService.Business.Services
             if (visit.Status != VisitStatus.Pending)
                 throw new InvalidOperationException("La visita non può essere eliminata");
 
-            await repository.DeleteAsync(visitId);
+            await repository.DeleteAsync(visitId, null, ct);
         }
 
-        public async Task UpdateAsync(int visitId, UpdateVisitDto visitDto, int userId)
+        public async Task UpdateAsync(int visitId, UpdateVisitDto visitDto, int userId, CancellationToken ct = default)
         {
-            Visit visit = await GetVisit(visitId);
-            await CheckCompletedAsync(visit);
+            Visit visit = await GetVisit(visitId, ct);
+            await CheckCompletedAsync(visit, ct);
 
             if (visit.VisitatorId != userId)
                 throw new UnauthorizedAccessException("Solo il visitatore può modificare la visita");
@@ -127,23 +127,23 @@ namespace VisitService.Business.Services
             if (visitDto.VisitDate < DateTime.UtcNow) throw new InvalidOperationException("Non è possibile prenotare una visita per questa data");
 
             visit.VisitDate = visitDto.VisitDate;
-            await repository.UpdateAsync(visit);
+            await repository.UpdateAsync(visit, null, ct);
         }
 
-        public async Task<List<VisitDto>> GetAllAsync(int userId)
+        public async Task<List<VisitDto>> GetAllAsync(int userId, CancellationToken ct = default)
         {
-            List<Visit> visits = await repository.GetByUserIdAsync(userId);
+            List<Visit> visits = await repository.GetByUserIdAsync(userId, ct);
 
             foreach (Visit visit in visits)
-                await CheckCompletedAsync(visit);
+                await CheckCompletedAsync(visit, ct);
 
             return mapper.Map<List<VisitDto>>(visits);
         }
 
-        public async Task<VisitDto> GetByIdAsync(int visitId, int userId)
+        public async Task<VisitDto> GetByIdAsync(int visitId, int userId, CancellationToken ct = default)
         {
-            Visit visit = await GetVisit(visitId) ?? throw new KeyNotFoundException("Visita non esistente");
-            await CheckCompletedAsync(visit);
+            Visit visit = await GetVisit(visitId, ct);
+            await CheckCompletedAsync(visit, ct);
 
             if (visit.OwnerId != userId && visit.VisitatorId != userId)
                 throw new UnauthorizedAccessException("Accesso negato alla visita");
@@ -151,12 +151,12 @@ namespace VisitService.Business.Services
             return mapper.Map<VisitDto>(visit);
         }
 
-        private async Task<Visit> GetVisit(int visitId)
+        private async Task<Visit> GetVisit(int visitId, CancellationToken ct = default)
         {
-            return await repository.GetByIdAsync(visitId) ?? throw new KeyNotFoundException("La visita non esiste");
+            return await repository.GetByIdAsync(visitId, ct) ?? throw new KeyNotFoundException("La visita non esiste");
         }
 
-        private async Task CheckCompletedAsync(Visit visit)
+        private async Task CheckCompletedAsync(Visit visit, CancellationToken ct = default)
         {
             if (visit.Status != VisitStatus.Completed && visit.VisitDate < DateTime.UtcNow)
             {
@@ -166,7 +166,7 @@ namespace VisitService.Business.Services
 
                 OutboxEvent outboxEvent = eventPublisher.CreateVisitCompletedEvent(visitCompletedDto);
 
-                await repository.UpdateAsync(visit, outboxEvent);
+                await repository.UpdateAsync(visit, outboxEvent, ct);
             }
         }
     }

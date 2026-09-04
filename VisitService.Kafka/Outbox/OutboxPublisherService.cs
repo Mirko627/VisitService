@@ -28,12 +28,16 @@ namespace VisitService.Kafka.Outbox
                 try
                 {
                     await PublishPendingEvents(stoppingToken);
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Errore durante la pubblicazione degli eventi Outbox");
                 }
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
         }
 
@@ -63,6 +67,10 @@ namespace VisitService.Kafka.Outbox
                     await db.SaveChangesAsync(ct);
 
                     _logger.LogInformation("Outbox event {EventId} pubblicato su {Topic}", e.Id, e.Topic);
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                {
+                    break;
                 }
                 catch (Exception ex)
                 {

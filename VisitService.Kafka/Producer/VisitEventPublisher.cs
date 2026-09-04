@@ -15,14 +15,11 @@ namespace VisitService.Kafka.Producer
         private const string Update = "U";
         private const string Delete = "D";
         
-        private readonly IProducerClient<string, string> _producerClient;
         private readonly VisitServiceTopicsOutput _topics;
 
         public VisitEventPublisher(
-            IProducerClient<string, string> producerClient,
             IOptions<VisitServiceTopicsOutput> topics)
         {
-            _producerClient = producerClient;
             _topics = topics.Value;
         }
 

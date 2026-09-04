@@ -11,7 +11,9 @@ namespace VisitService.ClientHttp.Clients
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public VisitClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
+        public VisitClient(
+            HttpClient httpClient,
+            IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
@@ -19,84 +21,127 @@ namespace VisitService.ClientHttp.Clients
 
         private void AddAuthorizationHeader(HttpRequestMessage request)
         {
-            string? authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            string? authHeader =
+                _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
 
-            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+            if (!string.IsNullOrEmpty(authHeader) &&
+                authHeader.StartsWith("Bearer "))
             {
                 string token = authHeader.Substring("Bearer ".Length).Trim();
 
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
             }
         }
 
-        public async Task AddAsync(CreateVisitDto dto)
+        public async Task AddAsync(
+            CreateVisitDto dto,
+            CancellationToken ct = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "api/visits");
+            var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "api/visits");
+
             request.Content = JsonContent.Create(dto);
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
-       
-        public async Task ConfirmAsync(int id)
+
+        public async Task ConfirmAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Patch, $"api/visits/{id}/confirm");
+            var request = new HttpRequestMessage(
+                HttpMethod.Patch,
+                $"api/visits/{id}/confirm");
+
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task RejectAsync(int id)
+        public async Task RejectAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Patch, $"api/visits/{id}/reject");
+            var request = new HttpRequestMessage(
+                HttpMethod.Patch,
+                $"api/visits/{id}/reject");
+
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/visits/{id}");
+            var request = new HttpRequestMessage(
+                HttpMethod.Delete,
+                $"api/visits/{id}");
+
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateAsync(int id, UpdateVisitDto dto)
+        public async Task UpdateAsync(
+            int id,
+            UpdateVisitDto dto,
+            CancellationToken ct = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, $"api/visits/{id}");
+            var request = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"api/visits/{id}");
+
             request.Content = JsonContent.Create(dto);
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<List<VisitDto>> GetAllAsync()
+        public async Task<List<VisitDto>> GetAllAsync(
+            CancellationToken ct = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "api/visits");
+            var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                "api/visits");
+
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<VisitDto>>() ?? [];
+            return await response.Content
+                .ReadFromJsonAsync<List<VisitDto>>(ct) ?? [];
         }
 
-        public async Task<VisitDto?> GetByIdAsync(int id)
+        public async Task<VisitDto?> GetByIdAsync(
+            int id,
+            CancellationToken ct = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/offer/{id}");
+            var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"api/visits/{id}");
+
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+            var response = await _httpClient.SendAsync(request, ct);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return null;
 
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<VisitDto>();
+
+            return await response.Content
+                .ReadFromJsonAsync<VisitDto>(ct);
         }
     }
 }
