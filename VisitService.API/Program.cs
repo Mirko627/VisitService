@@ -5,7 +5,6 @@ using Microsoft.OpenApi.Models;
 using PropertyService.ClientHttp.Clients;
 using PropertyService.ClientHttp.Interfaces;
 using System.Text;
-using System.Text.Json.Serialization;
 using VisitService.Business.Interfaces;
 using VisitService.Business.Mappers;
 using VisitService.Data.Context;
@@ -75,12 +74,7 @@ builder.Services.AddScoped<IVisitService, VisitService.Business.Services.VisitSe
 builder.Services.AddScoped<IVisitRepository, VisitRepository>();
 
 // Controllers
-builder.Services.AddControllers().AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(
-            new JsonStringEnumConverter()
-        );
-    });
+builder.Services.AddControllers();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
